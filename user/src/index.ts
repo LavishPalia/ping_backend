@@ -1,12 +1,12 @@
 import express from "express"
 import dotenv from "dotenv"
 import connectDB from "./config/db.js";
-import conntectRedis from "./config/redis.js";
+import connectRedis from "./config/redis.js";
 
 dotenv.config()
 
 await connectDB()
-await conntectRedis()
+await connectRedis()
 
 const app = express();
 
