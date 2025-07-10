@@ -1,0 +1,36 @@
+{
+  "name": "mail",
+  "version": "1.0.0",
+  "description": "mail service for ping chat app",
+  "keywords": [
+    "node",
+    "express",
+    "mongodb",
+    "mail service",
+    "email service"
+  ],
+  "license": "ISC",
+  "author": "Lavish Palia",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/index.js\""
+  },
+  "dependencies": {
+    "amqplib": "^0.10.8",
+    "dotenv": "^17.0.1",
+    "express": "^5.1.0",
+    "nodemailer": "^7.0.5"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.10.7",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^5.0.3",
+    "@types/nodemailer": "^6.4.17",
+    "concurrently": "^9.2.0",
+    "nodemon": "^3.1.10"
+  }
+}
