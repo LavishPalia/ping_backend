@@ -15,7 +15,7 @@ export const isAuth = async (
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
-      res.status(401).json({ message: "Please login - No token avialable" });
+      res.status(401).json({ message: "Please login - No token available" });
       return;
     }
 
@@ -34,8 +34,8 @@ export const isAuth = async (
     req.user = decodedValue.user;
 
     next();
-  } catch (error) {
-    console.log("JWT Error", error);
+  } catch (error: any) {
+    console.log("JWT verification failed:", error.message);
 
     res.status(401).json({ message: "Please Login - JWT Error" });
   }

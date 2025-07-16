@@ -79,7 +79,7 @@ export const updateName = TryCatch(async (req: AuthenticatedRequest, res) => {
   const { name } = req.body;
 
   if (!name) {
-    res.status(404).json({ message: "Name is required" });
+    res.status(400).json({ message: "Name is required" });
     return;
   }
 
@@ -88,7 +88,7 @@ export const updateName = TryCatch(async (req: AuthenticatedRequest, res) => {
   if (!user) {
     console.log("User not found");
 
-    res.status(404).json({ message: "Please login" });
+    res.status(404).json({ message: "User not found" });
     return;
   }
 
@@ -102,9 +102,26 @@ export const updateName = TryCatch(async (req: AuthenticatedRequest, res) => {
 });
 
 export const getAllUsers = TryCatch(async (req: AuthenticatedRequest, res) => {
-  const users = await User.find();
+  const page = parseInt(req.query.page as string) || 1;
+  const limit = parseInt(req.query.limit as string) || 10;
+  const skip = (page - 1) * limit;
 
-  res.status(200).json(users);
+  const users = await User.find({}, { __v: 0 }) // Exclude sensitive fields
+    .skip(skip)
+    .limit(limit);
+
+  const total = await User.countDocuments();
+
+  res.status(200).json({
+    message: "Users fetched successfully",
+    users,
+    pagination: {
+      page,
+      limit,
+      total,
+      pages: Math.ceil(total / limit),
+    },
+  });
 });
 
 export const getUser = TryCatch(async (req: AuthenticatedRequest, res) => {
