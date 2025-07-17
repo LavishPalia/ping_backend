@@ -1,0 +1,38 @@
+{
+  "name": "chat",
+  "version": "1.0.0",
+  "description": "chat service for ping chat app",
+  "keywords": [
+    "node",
+    "express",
+    "mongodb",
+    "chat service",
+    "chat"
+  ],
+  "author": "Lavish Palia",
+  "license": "ISC",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "dev": "concurrently \"tsc -w\" \"nodemon dist/index.js\""
+  },
+  "dependencies": {
+    "axios": "^1.10.0",
+    "dotenv": "^17.2.0",
+    "express": "^5.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.16.4"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.9.36",
+    "@types/dotenv": "^6.1.1",
+    "@types/express": "^5.0.3",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/mongoose": "^5.11.96",
+    "concurrently": "^9.2.0",
+    "nodemon": "^3.1.10"
+  }
+}
