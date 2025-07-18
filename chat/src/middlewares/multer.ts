@@ -23,7 +23,11 @@ export const upload = multer({
     if (file.mimetype.startsWith("image/")) {
       cb(null, true);
     } else {
-      cb(new Error("Only image files allowed"));
+      cb(
+        new Error(
+          "Only image files are allowed. Supported formats: jpg, jpeg, png, gif, webp"
+        )
+      );
     }
   },
 });

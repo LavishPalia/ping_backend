@@ -82,7 +82,7 @@ export const getAllChats = TryCatch(async (req: AuthenticatedRequest, res) => {
           },
         };
       } catch (error) {
-        console.log(error);
+        console.error(`Failed to fetch user data for ${otherUserId}:`, error);
         return {
           user: {
             _id: otherUserId,
@@ -136,7 +136,7 @@ export const sendMessage = TryCatch(async (req: AuthenticatedRequest, res) => {
       .json({ message: "User not a participant of this chat" });
   }
 
-  const otherUserId = chat.users.find((user) => !user.equals(senderId));
+  const otherUserId = chat.users.find((id) => !id.equals(senderId));
 
   if (!otherUserId) {
     return res.status(404).json({ message: "Other user not found" });
@@ -206,7 +206,7 @@ export const getMessagesByChat = TryCatch(
       return res.status(404).json({ message: "Chat not found" });
     }
 
-    const isUserInChat = chat.users.some((userId) => userId.equals(userId));
+    const isUserInChat = chat.users.some((id) => id.equals(userId));
 
     if (!isUserInChat) {
       return res
@@ -235,7 +235,7 @@ export const getMessagesByChat = TryCatch(
 
     const messages = await Messages.find({ chatId }).sort({ createdAt: 1 });
 
-    const otherUserId = chat.users.find((user) => !user.equals(userId));
+    const otherUserId = chat.users.find((id) => !id.equals(userId));
 
     if (!otherUserId) {
       return res.status(404).json({ message: "Other user not found" });
@@ -254,7 +254,7 @@ export const getMessagesByChat = TryCatch(
         user: data,
       });
     } catch (error) {
-      console.log(error);
+      console.error(`Failed to fetch user data for ${otherUserId}:`, error);
 
       return res.status(200).json({
         message: "Messages fetched successfully",
@@ -262,9 +262,5 @@ export const getMessagesByChat = TryCatch(
         user: { _id: otherUserId, name: "Unknown User" },
       });
     }
-
-    return res
-      .status(200)
-      .json({ message: "Messages fetched successfully", messages });
   }
 );

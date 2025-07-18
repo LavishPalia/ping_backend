@@ -51,4 +51,11 @@ const messageSchema: Schema<IMessage> = new Schema(
   }
 );
 
+messageSchema.pre("save", function (next) {
+  if (!this.text && !this.image?.url) {
+    return next(new Error("Message must contain either text or image"));
+  }
+  next();
+});
+
 export const Messages = mongoose.model<IMessage>("Messages", messageSchema);
