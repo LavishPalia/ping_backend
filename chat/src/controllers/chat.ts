@@ -8,8 +8,18 @@ export const createNewChat = TryCatch(
     const userId = req.user?._id;
     const { targetUserId } = req.body;
 
+    if (!userId) {
+      return res.status(401).json({ message: "User not authenticated" });
+    }
+
     if (!targetUserId) {
       return res.status(400).json({ message: "Target user ID is required" });
+    }
+
+    if (userId === targetUserId) {
+      return res
+        .status(400)
+        .json({ message: "Cannot create chat with yourself" });
     }
 
     const existingChat = await Chat.findOne({

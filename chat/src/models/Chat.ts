@@ -1,9 +1,9 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IChat extends Document {
-  users: string[];
+  users: mongoose.Types.ObjectId[];
   latestMessage: {
-    sender: string;
+    sender: mongoose.Types.ObjectId;
     text: string;
   };
   createdAt: Date;
@@ -14,13 +14,23 @@ const chatSchema: Schema<IChat> = new Schema(
   {
     users: [
       {
-        type: String,
+        type: Schema.Types.ObjectId,
+        ref: "User",
         required: true,
       },
     ],
     latestMessage: {
       text: String,
-      sender: String,
+      sender: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+        validate: {
+          validator: function (sender: mongoose.Types.ObjectId) {
+            return this.users.includes(sender);
+          },
+          message: "Sender must be one of the chat participants",
+        },
+      },
     },
   },
   {

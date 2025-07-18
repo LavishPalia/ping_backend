@@ -41,7 +41,10 @@ export const isAuth = async (
 
     next();
   } catch (error: any) {
-    console.log("JWT verification failed:", error.message);
+    console.log(
+      "JWT verification failed:",
+      process.env.NODE_ENV === "development" ? error.message : "Invalid token"
+    );
 
     res.status(401).json({ message: "Please Login - JWT Error" });
   }

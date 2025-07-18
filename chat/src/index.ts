@@ -7,11 +7,12 @@ dotenv.config();
 
 const app = express();
 
-const port = process.env.PORT;
+const port = process.env.PORT || 5002;
 
-connectDB();
+await connectDB();
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use("/api/v1/chats", chatRoutes);
 
