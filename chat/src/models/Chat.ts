@@ -26,7 +26,7 @@ const chatSchema: Schema<IChat> = new Schema(
         ref: "User",
         validate: {
           validator: function (sender: mongoose.Types.ObjectId) {
-            return this.users.includes(sender);
+            return this.users.some((userId) => userId.equals(sender));
           },
           message: "Sender must be one of the chat participants",
         },
