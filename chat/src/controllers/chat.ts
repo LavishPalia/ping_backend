@@ -4,6 +4,7 @@ import { AuthenticatedRequest } from "../middlewares/isAuth.js";
 import { Chat } from "../models/Chat.js";
 import { IMessage, Messages } from "../models/Messages.js";
 import axios from "axios";
+import { getReceiverSocketId, io } from "../config/socket.js";
 
 export const createNewChat = TryCatch(
   async (req: AuthenticatedRequest, res) => {
@@ -143,12 +144,23 @@ export const sendMessage = TryCatch(async (req: AuthenticatedRequest, res) => {
   }
 
   //TODO: socket setup
+  const receiverSocketId = getReceiverSocketId(otherUserId.toString());
+
+  let isReceiverOnline = false;
+
+  if (receiverSocketId) {
+    const receiverSocket = io.sockets.sockets.get(receiverSocketId);
+
+    if (receiverSocket && receiverSocket.rooms.has(chatId)) {
+      isReceiverOnline = true;
+    }
+  }
 
   let messageData: Partial<IMessage> = {
     chatId,
     sender: new Types.ObjectId(senderId),
-    seen: false,
-    seenAt: undefined,
+    seen: isReceiverOnline,
+    seenAt: isReceiverOnline ? new Date() : undefined,
   };
 
   if (imageFile) {
@@ -162,9 +174,7 @@ export const sendMessage = TryCatch(async (req: AuthenticatedRequest, res) => {
 
   const savedMessage = await Messages.create(messageData);
 
-  const latestMessageText = imageFile
-    ? `📷 Image ${imageFile.originalname}`
-    : text;
+  const latestMessageText = imageFile ? `📷 ${imageFile.originalname}` : text;
 
   await Chat.findByIdAndUpdate(
     chatId,
@@ -179,6 +189,25 @@ export const sendMessage = TryCatch(async (req: AuthenticatedRequest, res) => {
   );
 
   // TODO: emit to sockets
+  io.to(chatId).emit("newMessage", savedMessage);
+
+  if (receiverSocketId) {
+    io.to(receiverSocketId).emit("newMessage", savedMessage);
+  }
+
+  const senderSocketId = getReceiverSocketId(senderId.toString());
+
+  if (senderSocketId) {
+    io.to(senderSocketId).emit("newMessage", savedMessage);
+  }
+
+  if (isReceiverOnline && senderSocketId) {
+    io.to(senderSocketId).emit("messageSeen", {
+      chatId,
+      seenBy: otherUserId,
+      messageIds: [savedMessage._id],
+    });
+  }
 
   return res.status(201).json({
     message: "Message sent successfully",
@@ -214,7 +243,6 @@ export const getMessagesByChat = TryCatch(
         .json({ message: "User not a participant of this chat" });
     }
 
-    // NOTE: use mark as seen after doing frontend
     const messagesToMarkAsSeen = await Messages.find({
       chatId,
       sender: { $ne: userId },
@@ -247,6 +275,18 @@ export const getMessagesByChat = TryCatch(
       );
 
       // TODO: socket related work
+
+      if (messagesToMarkAsSeen.length > 0) {
+        const OtherUserSocketId = getReceiverSocketId(otherUserId.toString());
+
+        if (OtherUserSocketId) {
+          io.to(OtherUserSocketId).emit("messageSeen", {
+            chatId,
+            seenBy: userId,
+            messageIds: messagesToMarkAsSeen.map((message) => message._id),
+          });
+        }
+      }
 
       return res.status(200).json({
         message: "Messages fetched successfully",
